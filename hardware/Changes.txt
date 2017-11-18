@@ -1,0 +1,8 @@
+Changes from usbXR v1
+=====================
+
+1. Changed orientation of RFM70 module by 180 deg., hoping to get more range
+2. ATmega8 changed to ATmega328, to get more bootloader space for adding Remote bootloader functionality (both are pin compatible).
+3. 'usbXR' Text added 
+4. Added Text for ISP pins
+5. Name font size increased

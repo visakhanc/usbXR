@@ -1,0 +1,28 @@
+Partlist
+
+Exported from usbXR.brd at 15-Nov-17 6:32 PM
+
+EAGLE Version 8.3.1 Copyright (c) 1988-2017 Autodesk, Inc.
+
+Assembly variant: 
+
+Part     Value           Package              Library                     Position (mil)        Orientation
+
+C1       1.0uF           0603                 SparkFun-Capacitors         (225 75)              MR270
+C2       1.0uF           0603                 SparkFun-Capacitors         (775 75)              MR270
+C3       0.1uF           0603                 SparkFun-Capacitors         (855 75)              MR270
+C4       22pF            0603                 SparkFun-Capacitors         (265 75)              R90
+C5       22pF            0603                 SparkFun-Capacitors         (865 75)              R270
+D1       RED             LED-1206             SparkFun-LED                (320 605)             R0
+JP2      ISP             1X06-SMD_EDGE        SparkFun-Connectors         (945 530)             R270
+R1       68R             0603                 SparkFun-Resistors          (350 260)             R90
+R2       68R             0603                 SparkFun-Resistors          (290 410)             R90
+R3       2.2k            0603                 SparkFun-Resistors          (290 260)             R270
+R4       1k              0603                 SparkFun-Resistors          (315 520)             R0
+R5       10k             0603                 SparkFun-Resistors          (350 410)             R270
+SW1      BUTTON          TACTILE_SWITCH_3X4MM Custom_Parts                (950 590)             R180
+U2       XC6206          SOT23-3              Custom_Parts                (345 75)              MR270
+U3       RFM75		 RFM70	              RFM70                       (980 150)             MR90
+U4       ATMEGA328P_TQFP TQFP32-08            SparkFun-IC-Microcontroller (600 400)             R90
+X1       USB-A-H         USB-A-H              SparkFun-Connectors         (110 330)             R0
+Y1       12MHz           HC49US               SparkFun-FreqCtrl           (575 90)              R180

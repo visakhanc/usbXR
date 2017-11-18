@@ -1,0 +1,5 @@
+Problems faced during the hardware development and possible solutions
+=====================================================================
+
+1. Tested LED blinky with internal oscillator, but as soon as fuse changed for external crystal, programmer cannot connect.
+Solution: Bad crystal. Just replaced the 12MHz crystal. This cannot be detected beforehoand (or can it?)
