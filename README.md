@@ -7,7 +7,7 @@ usbXR is basically a USB adapter for the RFM75 2.4GHz wireless module. The USB f
 Hardware
 --------
 
-The hardware is simple and can only cost as low as 5 USD to make. [hardware](https://github.com/visakhanc/usbXR/hardware) folder contains the eagle schematic and layout with Partlist.
+The hardware is simple and can only cost as low as 5 USD to make. [hardware](https://github.com/visakhanc/usbXR/tree/master/hardware) folder contains the eagle schematic and layout with Partlist.
 You can order the PCBs from [OSHpark](https://oshpark.com/shared_projects/WQv4vncu).
 
 
