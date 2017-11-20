@@ -30,11 +30,11 @@ HID bootloader need to be programmed to the AVR to make use of self and remote p
 
 **IMPORTANT:** Before building any AVR projects from this repository, [common-libs](https://github.com/visakhanc/common_libs) repository needs to be downloaded first. This contains many device libraries for AVRs such as RFM70 etc. Download it and rename the directory to 'common'. Downloaded repositories must be at same directory level for Makefile to work. That is:
 
-	AVR_Projects
+	AVR_Projects/
 	|
-	|-- common
+	|-- common/
 	|
-	|-- usbXR
+	|-- usbXR/
 
 	
 ### Bootloader
