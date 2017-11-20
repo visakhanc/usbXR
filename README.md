@@ -3,15 +3,17 @@ usbXR - Low cost USB Wireless transceiver
 
 usbXR is basically a USB adapter for the RFM75 2.4GHz wireless module. The USB functionality is implemented using AVR ATmega328 and the [v-usb](https://www.obdev.at/products/vusb/index.html) firmware-only USB driver for AVRs, which emulates USB low-speed protocol. The device can be used for bi-directional communication with *remote* nodes, containing the same wireless module (ie. RFM75 or other compatible modules like RFM70/RFM73).
 
-Once the [HID-Bootloader] is flashed, you can load your application to usbXR using a command-line utility. In addition you can program remote node AVRs over-the-air! Both remote and self programming uses a single command line application bootloadHID:
+Once the [HID-Bootloader](https://github.com/visakhanc/usbXR/tree/master/bootloader/HID-bootloader-mega328) is flashed, you can load your application to usbXR using a command-line utility. In addition you can program remote node AVRs over-the-air! Both remote and self programming uses a single command line application bootloadHID:
 
 `bootloadHID.exe receiver.hex` - programs usbXR device with _receiver.hex_
+
 `bootloadHID.exe remote transmitter.hex` - programs a remote node with _transmitter.hex_
+
 `bootloadHID.exe -r test.hex` - programs usbXR with _test.hex_ and resets usbXR
 	
-For over-the-air programming, the remote AVR need to be initially programmed with a bootloader. An example for ATmega8 is given [here].
+For over-the-air programming, the remote AVR need to be initially programmed with a bootloader. An example for ATmega8 is given [here](https://github.com/visakhanc/usbXR/tree/master/bootloader/remote-bootloader-mega8).
 	
-[applications] directory contains example applications.
+[applications](https://github.com/visakhanc/usbXR/tree/master/applications) directory contains example applications.
 
  
 Hardware
@@ -24,7 +26,7 @@ You can order the PCBs from [OSHpark](https://oshpark.com/shared_projects/8Y8Vg5
 Setup
 -----
 
-HID bootloader need to be programmed to the AVR to make use of self and remote programming over USB. The bootloader and the command-line utility is an extension to the official HID [bootloader] from v-usb, modified to incorporate remote bootloading functionality. 
+HID bootloader need to be programmed to the AVR to make use of self and remote programming over USB. The bootloader and the command-line utility is an extension to the official HID [bootloader](https://www.obdev.at/products/vusb/bootloadhid.html) from v-usb, modified to incorporate remote bootloading functionality. 
 
 **IMPORTANT:** Before building any AVR projects from this repository, common library need to be downloaded first. This contains many device libraries for AVRs such as RFM70 etc. Download it and rename the directory to 'common'. Downloaded repositories must be at same directory level for Makefile to work. That is:
 
@@ -66,6 +68,6 @@ If you want to use the over-the-air programming feature of usbXR, a bootloader n
 Applications
 ------------
 
-An [example] shows a remote node sending 3 axis accelerometer values from MPU6050 sensor, continuously to usbXR and plotting the values in real-time. Here, interrupt-in endpoint is used to transfer the received samples over USB, at intervals as short as 10ms. Since it uses HID protocol, no driver is required under Windows. A WPF C# application is used to get USB packets and draw the graph.
+An [example](https://github.com/visakhanc/usbXR/tree/master/applications/SensorReceive) shows a remote node sending 3 axis accelerometer values from MPU6050 sensor, continuously to usbXR and plotting the values in real-time. Here, interrupt-in endpoint is used to transfer the received samples over USB, at intervals as short as 10ms. Since it uses HID protocol, no driver is required under Windows. A WPF C# application is used to get USB packets and draw the graph.
 
 Please visit [v-usb](https://www.obdev.at/products/vusb/index.html) for more details of implementating USB devices using v-usb library. For easy access of USB device, PyUSB python library can be used.
