@@ -5,8 +5,8 @@ usbXR is basically a USB adapter for the RFM75 2.4GHz wireless module. The USB f
 
 Once the [HID-Bootloader] is flashed, you can load your application to usbXR using a command-line utility. In addition you can program remote node AVRs over-the-air! Both remote and self programming uses a single command line application bootloadHID:
 
-	*bootloadHID.exe receiver.hex* - programs usbXR device with *receiver.hex*
-	*bootloadHID.exe remote transmitter.hex* - programs a remote node with *transmitter.hex*
+	**bootloadHID.exe receiver.hex** - programs usbXR device with _receiver.hex_
+	**bootloadHID.exe remote transmitter.hex** - programs a remote node with _transmitter.hex_
 	
 For over-the-air programming, the remote AVR need to be initially programmed with a bootloader. An example for ATmega8 is given [here].
 	
@@ -34,7 +34,7 @@ HID bootloader need to be programmed to the AVR to make use of self and remote p
 	|-- usbXR
 
 	
-###Bootloader
+### Bootloader
 
 For building the bootloader firmware under Windows, WinAVR is needed. To flash the AVR, after the hardware is ready, connect an ISP programmer like USBasp to the 6 ISP pins of usbXR. Make sure to provide only 3.3v target voltage from the programmer. 5v would damage the RFM70 transceiver. To compile and program the HID-Bootloader, go into the bootloader directory and execute these steps:
 
@@ -48,7 +48,7 @@ For building the bootloader firmware under Windows, WinAVR is needed. To flash t
 Now, plug usbXR into a USB port and it will be recognized as an HID device (HIDBoot).
 
 
-###Bootloader utility
+### Bootloader utility
 
 You will need MinGW installation to compile under Windows. To compile BootloadHID application under Windows, execute:
 
