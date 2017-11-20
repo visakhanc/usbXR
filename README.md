@@ -28,7 +28,7 @@ Setup
 
 HID bootloader need to be programmed to the AVR to make use of self and remote programming over USB. The bootloader and the command-line utility is an extension to the official HID [bootloader](https://www.obdev.at/products/vusb/bootloadhid.html) from v-usb, modified to incorporate remote bootloading functionality. 
 
-**IMPORTANT:** Before building any AVR projects from this repository, common library need to be downloaded first. This contains many device libraries for AVRs such as RFM70 etc. Download it and rename the directory to 'common'. Downloaded repositories must be at same directory level for Makefile to work. That is:
+**IMPORTANT:** Before building any AVR projects from this repository, [common-libs](https://github.com/visakhanc/common_libs) repository needs to be downloaded first. This contains many device libraries for AVRs such as RFM70 etc. Download it and rename the directory to 'common'. Downloaded repositories must be at same directory level for Makefile to work. That is:
 
 	AVR_Projects
 	|
