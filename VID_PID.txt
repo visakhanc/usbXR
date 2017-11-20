@@ -1,0 +1,93 @@
+
+The following text is taken from "USB-IDs-for-free.txt" of the official v-usb distribution. 
+This describes the Vendor-ID(VID) and Product-ID(PID) values that should be (supposed to be) 
+used for v-usb based USB devices that you are making. And these devices are supposed to be used 
+for personal use only and NOT to be used for any commercial application.
+
+| | | | | | | | | | | | | | | | | | | | | | | |
+V V V V V V V V V V V V V V V V V V V V V V V V
+
+=========================================
+1. IDs FOR DISCRIMINATION BY TEXTUAL NAME
+=========================================
+
+If you use one of the IDs listed below, your device and host-side software
+must conform to these rules:
+
+(1) The USB device MUST provide a textual representation of the manufacturer
+and product identification. The manufacturer identification MUST be available
+at least in USB language 0x0409 (English/US).
+
+(2) The textual manufacturer identification MUST contain either an Internet
+domain name (e.g. "mycompany.com") registered and owned by you, or an e-mail
+address under your control (e.g. "myname@gmx.net"). You can embed the domain
+name or e-mail address in any string you like, e.g.  "Objective Development
+http://www.obdev.at/vusb/".
+
+(5) Application side device look-up MUST be based on the textual manufacturer
+and product identification in addition to VID/PID matching. The driver
+matching MUST be a comparison of the entire strings, NOT a sub-string match.
+
+
+Table if IDs for discrimination by textual name:
+
+PID dec (hex) | VID dec (hex) | Description of use
+==============+===============+============================================
+1500 (0x05dc) | 5824 (0x16c0) | For Vendor Class devices with libusb
+--------------+---------------+--------------------------------------------
+1503 (0x05df) | 5824 (0x16c0) | For generic HID class devices (which are
+              |               | NOT mice, keyboards or joysticks)
+--------------+---------------+--------------------------------------------
+1505 (0x05e1) | 5824 (0x16c0) | For CDC-ACM class devices (modems)
+--------------+---------------+--------------------------------------------
+1508 (0x05e4) | 5824 (0x16c0) | For MIDI class devices
+--------------+---------------+--------------------------------------------
+
+
+
+==========================================
+2. IDs FOR DISCRIMINATION BY SERIAL NUMBER
+==========================================
+
+If you use one of the IDs listed below, your device and host-side software
+must conform to these rules:
+
+(1) The USB device MUST provide a textual representation of the serial
+number, unless ONLY the operating system's default class driver is used.
+The serial number string MUST be available at least in USB language 0x0409
+(English/US).
+
+(2) The serial number MUST start with either an Internet domain name (e.g.
+"mycompany.com") registered and owned by you, or an e-mail address under your
+control (e.g. "myname@gmx.net"), both terminated with a colon (":") character.
+You MAY append any string you like for further discrimination of your devices.
+
+(5) Application side device look-up MUST be based on the serial number string
+in addition to VID/PID matching. The matching must start at the first
+character of the serial number string and include the colon character
+terminating your domain or e-mail address. It MAY stop anywhere after that.
+
+(7) If ONLY the operating system's default class driver is used, e.g. for
+mice, keyboards, joysticks, CDC or MIDI devices and no discrimination by an
+application is needed, the serial number may be omitted.
+
+
+Table if IDs for discrimination by serial number string:
+
+PID dec (hex)  | VID dec (hex) | Description of use
+===============+===============+===========================================
+10200 (0x27d8) | 5824 (0x16c0) | For Vendor Class devices with libusb
+---------------+---------------+-------------------------------------------
+10201 (0x27d9) | 5824 (0x16c0) | For generic HID class devices (which are
+               |               | NOT mice, keyboards or joysticks)
+---------------+---------------+-------------------------------------------
+10202 (0x27da) | 5824 (0x16c0) | For USB Mice
+---------------+---------------+-------------------------------------------
+10203 (0x27db) | 5824 (0x16c0) | For USB Keyboards
+---------------+---------------+-------------------------------------------
+10204 (0x27dc) | 5824 (0x16c0) | For USB Joysticks
+---------------+---------------+-------------------------------------------
+10205 (0x27dd) | 5824 (0x16c0) | For CDC-ACM class devices (modems)
+---------------+---------------+-------------------------------------------
+10206 (0x27de) | 5824 (0x16c0) | For MIDI class devices
+---------------+---------------+-------------------------------------------
