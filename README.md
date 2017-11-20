@@ -5,8 +5,9 @@ usbXR is basically a USB adapter for the RFM75 2.4GHz wireless module. The USB f
 
 Once the [HID-Bootloader] is flashed, you can load your application to usbXR using a command-line utility. In addition you can program remote node AVRs over-the-air! Both remote and self programming uses a single command line application bootloadHID:
 
-	**bootloadHID.exe receiver.hex** - programs usbXR device with _receiver.hex_
-	**bootloadHID.exe remote transmitter.hex** - programs a remote node with _transmitter.hex_
+`bootloadHID.exe receiver.hex` - programs usbXR device with _receiver.hex_
+`bootloadHID.exe remote transmitter.hex` - programs a remote node with _transmitter.hex_
+`bootloadHID.exe -r test.hex` - programs usbXR with _test.hex_ and resets usbXR
 	
 For over-the-air programming, the remote AVR need to be initially programmed with a bootloader. An example for ATmega8 is given [here].
 	
