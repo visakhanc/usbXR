@@ -59,7 +59,7 @@ To use the bootloader, plug-in the device to a USB port while pressing down the 
 
 ### Remote bootloader
 
-If you want to use the over-the-air programming feature of usbXR, a bootloader need to be initially programmed to the AVR. The example given is for ATmega8, but can be used for other AVRs with at least 2kB of boot space. The bootloader uses the last byte of the AVR EEPROM to store a validity flag. View the readme for more details.
+If you want to use the over-the-air programming feature of usbXR, a bootloader need to be initially programmed to the AVR. The example given is for ATmega8, but can be used for other AVRs with at least 2kB of boot space. The bootloader uses the last byte of the AVR EEPROM to store a validity flag. View the readme for building instructions. A button and LED is expected for a remote device. To enter bootloader, the button needs to be pressed while powering-on or resetting the AVR. Now, the bootloadHID tool can be used for programming. The LED flashes at 1 sec interval, when over-the-air programming is in progress until the programming is over. If programming fails midway, the command needs to be repeated. Programming is successful only when the LED stops flashing.
 
 
 Applications
