@@ -70,6 +70,6 @@ If you want to use the over-the-air programming feature of usbXR, a bootloader n
 Applications
 ------------
 
-An [example](https://github.com/visakhanc/usbXR/tree/master/applications/SensorReceive) shows a remote node sending 3 axis accelerometer values from MPU6050 sensor, continuously to usbXR and plotting the values in real-time. Here, interrupt-in endpoint is used to transfer the received samples over USB, at intervals as short as 10ms. Since it uses HID protocol, no driver is required under Windows. A WPF C# application is used to get USB packets and draw the graph.
+An [example](https://github.com/visakhanc/usbXR/tree/master/applications/SensorReceive) shows a remote node sending 3 axis accelerometer values from MPU6050 sensor, continuously to usbXR and plotting the values in real-time. Here, interrupt-in endpoint is used to transfer the received samples over USB, at intervals as short as 10ms. Since it uses HID protocol, no driver is required under Windows. A WPF C# application is used to get USB packets and draw the graph. A video showing this example and the whole setup is [here](https://www.youtube.com/watch?v=0iYNhQ-_6nI).
 
 Please visit [v-usb](https://www.obdev.at/products/vusb/index.html) for more details of implementating USB devices using v-usb library. For easy access of USB device, PyUSB python library can be used.
