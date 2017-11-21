@@ -3933,7 +3933,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="JP2" library="SparkFun-Connectors" deviceset="M06" device="1X06-SMD_EDGE_FEMALE" value="ISP"/>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
 <part name="SUPPLY3" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
-<part name="U3" library="RFM70" deviceset="RFM70" device="SMD_ONLY"/>
+<part name="U3" library="RFM70" deviceset="RFM70" device="SMD_ONLY" value="RFM70"/>
 <part name="U4" library="SparkFun-IC-Microcontroller" deviceset="ATMEGA328P_TQFP" device="" value="ATMEGA328P_TQFP"/>
 </parts>
 <sheets>

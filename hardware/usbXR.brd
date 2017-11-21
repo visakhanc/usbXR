@@ -720,7 +720,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="15.367" y="1.778" size="0.8128" layer="25" font="vector" ratio="14" rot="R180"/>
 <attribute name="VALUE" x="19.685" y="6.223" size="1.27" layer="27" ratio="10" rot="R180"/>
 </element>
-<element name="U3" library="RFM70" package="RFM70_SMD" value="RFM70SMD_ONLY" x="24.892" y="3.81" smashed="yes" rot="MR90">
+<element name="U3" library="RFM70" package="RFM70_SMD" value="RFM70" x="24.892" y="3.81" smashed="yes" rot="MR90">
 <attribute name="NAME" x="6.858" y="15.494" size="0.8128" layer="26" font="vector" ratio="14" rot="MR0"/>
 <attribute name="VALUE" x="5.207" y="3.81" size="1.27" layer="28" rot="MR90"/>
 </element>
