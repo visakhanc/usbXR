@@ -1,7 +1,8 @@
 usbXR - Low cost USB Wireless transceiver
 =========================================
 
-![front](https://github.com/visakhanc/usbXR/tree/master/pic/front-1.jpg) ![back](https://github.com/visakhanc/usbXR/tree/master/pic/back-1.jpg)
+![front](https://github.com/visakhanc/usbXR/tree/master/pic/front-1.jpg) 
+![back](https://github.com/visakhanc/usbXR/tree/master/pic/back-1.jpg)
 
 usbXR is basically a USB adapter for the RFM75 2.4GHz wireless module. The USB functionality is implemented using AVR ATmega328 and the [v-usb](https://www.obdev.at/products/vusb/index.html) firmware-only USB driver for AVRs, which emulates USB low-speed protocol. The device can be used for bi-directional communication with *remote* nodes, containing the same wireless module (ie. RFM75 or other compatible modules like RFM70/RFM73).
 
