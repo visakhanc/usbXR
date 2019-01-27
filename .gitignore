@@ -1,4 +1,10 @@
-Compiled source #
+# Entire debug and Release directories #
+########################################
+**/[Dd]ebug/
+**/[Rr]elease/
+
+
+#Compiled source #
 ###################
 *.com
 *.class
@@ -12,6 +18,13 @@ Compiled source #
 *.map
 *.lss
 *.bin
+*.lib
+*.a
+*.out
+*.app
+*.obj
+*.d
+
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
@@ -46,3 +59,7 @@ Thumbs.db
 *.s#?
 *.b#?
 *.l#?
+
+# Project specific #
+####################
+
