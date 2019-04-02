@@ -50,7 +50,7 @@ For building the bootloader firmware under Windows, WinAVR is needed. To flash t
 
 *If any ISP programmer other than USBasp is used, change the Makefile accordingly.*
 
-Now, plug usbXR into a USB port and it will be recognized as an HID device (HIDBoot).
+Now, plug usbXR into a USB port while pressing down the button, and it will be recognized as an HID device (HIDBoot).
 
 
 #### Bootloader utility
