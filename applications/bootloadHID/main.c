@@ -31,12 +31,16 @@
 #include <unistd.h> // for usleep
 #endif
 
-#include "../bootloader_defs.h"
+#include "../../firmware/bootloader/bootloader_defs.h"
 
-#define IDENT_VENDOR_NUM        0x16c0
-#define IDENT_VENDOR_STRING     "obdev.at"
-#define IDENT_PRODUCT_NUM       1503
-#define IDENT_PRODUCT_STRING    "HIDBoot"
+
+#define IDENT_VENDOR_NUM        	0x16c0
+#define IDENT_VENDOR_STRING     	"obdev.at"
+#define IDENT_PRODUCT_NUM       	1503
+#define IDENT_PRODUCT_STRING    	"HIDBoot"
+#define IDENT_PRODUCT_STRING_REM    "usbXR Sensor"
+#define IDENT_PRODUCT_STRING_REM2   "HIDBoot Remote"
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -163,39 +167,39 @@ int i;
 
 /* ------------------------------------------------------------------------- */
 
-typedef struct deviceInfo{
+typedef struct deviceInfo {
     char    reportId;
     char    pageSize[2];
     char    flashSize[4];
-}deviceInfo_t;
+} deviceInfo_t;
 
-typedef struct deviceData{
+typedef struct deviceData {
     char    reportId;
     char    address[3];
     char    data[128];
-}deviceData_t;
+} deviceData_t;
 
 static int uploadData(char *dataBuffer, int startAddr, int endAddr)
 {
-usbDevice_t *dev = NULL;
-int         err = 0, len, mask, pageSize, deviceSize;
-union{
-    char            bytes[1];
-    deviceInfo_t    info;
-    deviceData_t    data;
-}           buffer;
+	usbDevice_t *dev = NULL;
+	int err = 0, len, mask, pageSize, deviceSize;
+	union {
+		char            bytes[1];
+		deviceInfo_t    info;
+		deviceData_t    data;
+	} buffer;
 
     if((err = usbOpenDevice(&dev, IDENT_VENDOR_NUM, IDENT_VENDOR_STRING, IDENT_PRODUCT_NUM, IDENT_PRODUCT_STRING, 1)) != 0){
         fprintf(stderr, "Error opening HIDBoot device: %s\n", usbErrorMessage(err));
         goto errorOccurred;
     }
     len = sizeof(buffer);
-    if(endAddr > startAddr){    // we need to upload data
+    if(endAddr > startAddr) {    // We need to upload data
         if((err = usbGetReport(dev, USB_HID_REPORT_TYPE_FEATURE, 1, buffer.bytes, &len)) != 0){
             fprintf(stderr, "Error reading page size: %s\n", usbErrorMessage(err));
             goto errorOccurred;
         }
-        if(len < sizeof(buffer.info)){
+        if(len < sizeof(buffer.info)) {
             fprintf(stderr, "Not enough bytes in device info report (%d instead of %d)\n", len, (int)sizeof(buffer.info));
             err = -1;
             goto errorOccurred;
@@ -204,26 +208,26 @@ union{
         deviceSize = getUsbInt(buffer.info.flashSize, 4);
         printf("Page size   = %d (0x%x)\n", pageSize, pageSize);
         printf("Device size = %d (0x%x); %d bytes remaining\n", deviceSize, deviceSize, deviceSize - 2048);
-        if(endAddr > deviceSize - 2048){
+        if(endAddr > deviceSize - 2048) {
             fprintf(stderr, "Data (%d bytes) exceeds remaining flash size!\n", endAddr);
             err = -1;
             goto errorOccurred;
         }
-        if(pageSize < 128){
+        if(pageSize < 128) {
             mask = 127;
-        }else{
+        } else {
             mask = pageSize - 1;
         }
         startAddr &= ~mask;                  /* round down */
         endAddr = (endAddr + mask) & ~mask;  /* round up */
         printf("Uploading %d (0x%x) bytes starting at %d (0x%x)\n", endAddr - startAddr, endAddr - startAddr, startAddr, startAddr);
-        while(startAddr < endAddr){
+        while(startAddr < endAddr) {
             buffer.data.reportId = 2;
             memcpy(buffer.data.data, dataBuffer + startAddr, 128);
             setUsbInt(buffer.data.address, startAddr, 3);
             printf("\r0x%05x ... 0x%05x", startAddr, startAddr + (int)sizeof(buffer.data.data));
             fflush(stdout);
-            if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, buffer.bytes, sizeof(buffer.data))) != 0){
+            if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, buffer.bytes, sizeof(buffer.data))) != 0) {
                 fprintf(stderr, "Error uploading data block: %s\n", usbErrorMessage(err));
                 goto errorOccurred;
             }
@@ -231,7 +235,7 @@ union{
         }
         printf("\n");
     }
-    if(leaveBootLoader){
+    if(leaveBootLoader) {
         /* and now leave boot loader: */
         buffer.info.reportId = 1;
         usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, buffer.bytes, sizeof(buffer.info));
@@ -248,30 +252,33 @@ errorOccurred:
 
 
 
-typedef struct remoteDeviceInfo{
+typedef struct remoteDeviceInfo {
     uint8_t		reportId;
-	uint8_t 	txStatus;
-	uint8_t		payloadType;
+    uint8_t 	deviceId;
+    uint8_t 	statusType;
+    uint8_t     devStatus;
     uint8_t   	pageSizeDiv2;
     uint8_t   	flashSizeInKB;
-	uint8_t 	_padding[3];
-}remoteDeviceInfo_t;
+	uint8_t 	_padding[2];
+} remoteDeviceInfo_t;
 
-typedef struct progStatus{
+typedef struct progStatus {
 	uint8_t		reportId;
 	uint8_t 	txStatus;
-	uint8_t		payloadType;
-    uint8_t   	currentAddress[2];
+    uint8_t 	deviceId;
+    uint8_t 	statusType;
+	uint8_t     devStatus;
 	uint8_t 	_padding[3];
-}progStatus_t;
+} progStatus_t;
 
 typedef struct progCommand {
-	uint8_t reportId;
-	uint8_t cmd;
-	uint8_t _padding[6];
+	uint8_t     reportId;
+    uint8_t     deviceId;
+	uint8_t     cmd;
+	uint8_t     _padding[5];
 } progCommand_t;
 
-typedef struct remoteDeviceData{
+typedef struct remoteDeviceData {
     char    reportId;
     char    address[3];
     char    data[16];
@@ -280,200 +287,239 @@ typedef struct remoteDeviceData{
 
 static int uploadDataRemote(char *dataBuffer, int startAddr, int endAddr)
 {
-usbDevice_t *dev = NULL;
-int         err = 0, len, mask, pageSize, deviceSize, retry;
-int 		currentAddr;
-union{
-    char            	bytes[1];
-    remoteDeviceData_t  data;
-	progCommand_t 		command;
-}  txBuffer;
+	usbDevice_t *dev = NULL;
+	int err = 0, len, mask, pageSize, deviceSize, retry;
+	int currentAddr;
+    uint8_t deviceId;
+    union {
+		char            	bytes[1];
+		remoteDeviceData_t  progData;
+		progCommand_t 		progCommand;
+	} txBuffer;
+	union {
+		char 				bytes[1];
+		remoteDeviceInfo_t	devInfo;
+		progStatus_t 		progStatus;
+	} replyBuffer;
 
-union {
-	char 				bytes[1];
-	remoteDeviceInfo_t	devinfo;
-	progStatus_t 		status;
-} replyBuffer;
 
-	printf("\n\n");
-    if((err = usbOpenDevice(&dev, IDENT_VENDOR_NUM, IDENT_VENDOR_STRING, IDENT_PRODUCT_NUM, IDENT_PRODUCT_STRING, 1)) != 0) {
-        fprintf(stderr, "Error opening '%s' device: %s\n", IDENT_PRODUCT_STRING, usbErrorMessage(err));
-        goto errorOccurred;
+    if((err = usbOpenDevice(&dev, IDENT_VENDOR_NUM, IDENT_VENDOR_STRING, IDENT_PRODUCT_NUM, IDENT_PRODUCT_STRING_REM, 1)) != 0) {
+    	if((err = usbOpenDevice(&dev, IDENT_VENDOR_NUM, IDENT_VENDOR_STRING, IDENT_PRODUCT_NUM, IDENT_PRODUCT_STRING_REM2, 1)) != 0) {
+			fprintf(stderr, "Error opening '%s' or '%s' device: %s\n", IDENT_PRODUCT_STRING_REM, IDENT_PRODUCT_STRING_REM2, usbErrorMessage(err));
+			goto errorOccurred;
+    	}
+    	else {
+    		printf("OPENED '%s' (VID:0x%04x PID:0x%04x) device\n", IDENT_PRODUCT_STRING_REM2, IDENT_VENDOR_NUM, IDENT_PRODUCT_NUM);
+    	}
     }
-	printf("OPENED '%s' (VID:0x%04x PID:0x%04x) device\n", IDENT_PRODUCT_STRING, IDENT_VENDOR_NUM, IDENT_PRODUCT_NUM);
-    if(endAddr > startAddr) {  // we need to upload data
-		printf("\nUPLOAD: startAddress: %d(0x%x) endAddress: %d(0x%x)\n", startAddr, startAddr, endAddr, endAddr);
-		printf("\nGETTING Remote device info ");
-		retry = 5;
+    else {
+    	printf("OPENED '%s' (VID:0x%04x PID:0x%04x) device\n", IDENT_PRODUCT_STRING_REM, IDENT_VENDOR_NUM, IDENT_PRODUCT_NUM);
+    }
+
+    if(endAddr > startAddr) {  // We need to upload data
+		printf("GETTING Remote device info...");
+        len = sizeof(replyBuffer);
+        /* Get device info reported by the remote device */
+        if((err = usbGetReport(dev, USB_HID_REPORT_TYPE_FEATURE, 3, replyBuffer.bytes, &len)) != 0) {
+            fprintf(stderr, "USBError reading remote device info: %s\n", usbErrorMessage(err));
+            goto errorOccurred;
+        }
+        if(len < sizeof(replyBuffer.devInfo)) {
+            fprintf(stderr, "Not enough bytes in device info report (%d instead of %d)\n", len, (int)sizeof(replyBuffer.devInfo));
+            err = -1;
+            goto errorOccurred;
+        }
+        if ((replyBuffer.devInfo.devStatus != STATUS_OTA_BOOT_REQ) || (replyBuffer.devInfo.statusType != STATUS_TYPE_DEVINFO) || (!replyBuffer.devInfo.deviceId))  {	/* Invalid device info from remote device */
+            printf("Device info not yet received from a remote device\n");
+            err = -1;
+            goto errorOccurred;
+        }
+        printf("OK\n");
+
+		/* Command the remote device to start receiving data */
+        deviceId = replyBuffer.devInfo.deviceId;
+        txBuffer.progCommand.reportId = 3;
+        txBuffer.progCommand.deviceId = deviceId;
+        txBuffer.progCommand.cmd = CMD_OTA_BOOT_START;
+        if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.progCommand))) != 0) {
+            fprintf(stderr, "USBError sending PROG_START command: %s\n", usbErrorMessage(err));
+            err = -1;
+            goto errorOccurred;
+        }
+
+        /* Wait for acknowledgment from remote device */
+        printf("WAITING for Remote device (ID: 0x%02x) to get ready", deviceId);
+        retry = 50;
         while(retry) {
-			putchar('.');
-			txBuffer.command.reportId = 3;
-			txBuffer.command.cmd = OTA_PROG_START;	/* Send START to remote device, which should reply with Device Info */
-			if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.command))) != 0) {
-				//fprintf(stderr, "USBError: Getting device info: %s\n", usbErrorMessage(err));
-				//goto errorOccurred;
-				putchar('*');
-			}
-			len = sizeof(replyBuffer);	/* Get the reply from remote device */
-			if((err = usbGetReport(dev, USB_HID_REPORT_TYPE_FEATURE, 3, replyBuffer.bytes, &len)) != 0) {
-				//fprintf(stderr, "USBError reading page size: %s\n", usbErrorMessage(err));
-				//goto errorOccurred;
-				putchar('*');
-			}
-			if(len < sizeof(replyBuffer.devinfo)) {
-				fprintf(stderr, "Not enough bytes in device info report (%d instead of %d)\n", len, (int)sizeof(replyBuffer.devinfo));
-				err = -1;
-				goto errorOccurred;
-			}
-			if ((replyBuffer.devinfo.txStatus == 0) && (replyBuffer.devinfo.payloadType == PAYLD_TYPE_DEVINFO)) {	/* Valid reply received from remote device */
-				break;
-			}
-			retry--;
-			sleep_ms(10);
-		}
-		if(!retry) {
-			fprintf(stderr, "\nCould not get Remote device info (Communication with Remote device failed!) txStatus:%d\n", replyBuffer.devinfo.txStatus);
+            putchar('.');
+             if((err = usbGetReport(dev, USB_HID_REPORT_TYPE_FEATURE, 3, replyBuffer.bytes, &len)) != 0) {
+                fprintf(stderr, "USBError reading remote device info: %s\n", usbErrorMessage(err));
+                goto errorOccurred;
+            }
+             if(len < sizeof(replyBuffer.devInfo)) {
+                fprintf(stderr, "Not enough bytes in device info report (%d instead of %d)\n", len, (int)sizeof(replyBuffer.devInfo));
+                err = -1;
+                goto errorOccurred;
+            }
+            if((replyBuffer.devInfo.deviceId == deviceId) && (replyBuffer.devInfo.devStatus == STATUS_OTA_BOOT_READY)) {
+                break;
+            }
+            retry--;
+            Sleep(200);
+        }
+        if(!retry) {
+            printf("Timeout\n");
+            printf("No response from Remote device! deviceID: 0x%02x Status: 0x%02x\n", replyBuffer.devInfo.deviceId, replyBuffer.devInfo.devStatus);
+            goto errorOccurred;
+        }
+        printf("OK\n");
+        //Sleep(1000); /* Delay for remote device to change to Rx mode */
+        /* Acknowledgment received from remote, Change to Tx mode*/
+        printf("CHANGING to Tx mode...");
+        txBuffer.progCommand.reportId = 3;
+        txBuffer.progCommand.cmd = CMD_OTA_BOOT_TXMODE;
+        if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.progCommand))) != 0) {
+			fprintf(stderr, "USBError sending PROG_START command: %s\n", usbErrorMessage(err));
 			err = -1;
 			goto errorOccurred;
 		}
-		/* We got the device info from remote. Parse page size and flash size from the data */
-		pageSize = replyBuffer.devinfo.pageSizeDiv2 * 2;
-        deviceSize = replyBuffer.devinfo.flashSizeInKB * 1024;
-		//printf("Retry: %d\t", retry);
+        printf("OK\n");
+
+        /* Parse page size and flash size of the remote from the received device info */
+        pageSize = replyBuffer.devInfo.pageSizeDiv2 * 2;
+        deviceSize = replyBuffer.devInfo.flashSizeInKB * 1024;
         printf("\nPage size   = %d (0x%x)\t", pageSize, pageSize);
         printf("Device size = %d (0x%x); %d bytes remaining\n", deviceSize, deviceSize, deviceSize - 2048);
-        if(endAddr > deviceSize - 2048){
+        if(endAddr > deviceSize - 2048) {
             fprintf(stderr, "Data (%d bytes) exceeds remaining flash size!\n", endAddr);
             err = -1;
             goto errorOccurred;
         }
-        if(pageSize < 128){
-            mask = 127;
-        }else{
-            mask = pageSize - 1;
-        }
-        startAddr &= ~mask;                  /* round down */
-        endAddr = (endAddr + mask) & ~mask;  /* round up */
+        if(pageSize < 128) {
+			mask = 127;
+		} else {
+			mask = pageSize - 1;
+		}
+		startAddr &= ~mask;                  /* round down */
+		endAddr = (endAddr + mask) & ~mask;  /* round up */
+
+
 		/* Transmit the data blocks now */
-		printf("UPLOADING %d (0x%x) bytes starting at %d (0x%x) END: %d(0x%x)\n", endAddr - startAddr, endAddr - startAddr, startAddr, startAddr, endAddr, endAddr);
-        sleep_ms(10);
-		while(startAddr < endAddr) {
-            txBuffer.data.reportId = 4;
-            memcpy(txBuffer.data.data, dataBuffer + startAddr, sizeof(txBuffer.data.data));
-            setUsbInt(txBuffer.data.address, startAddr, 3);
-            printf("\n0x%05x ... 0x%05x: ", startAddr, startAddr + (int)sizeof(txBuffer.data.data));
+        printf("UPLOADING %d (0x%x) bytes starting at %d (0x%x)\n", endAddr - startAddr, endAddr - startAddr, startAddr, startAddr);
+        while(startAddr < endAddr) {
+            txBuffer.progData.reportId = 4;
+            memcpy(txBuffer.progData.data, dataBuffer + startAddr, sizeof(txBuffer.progData.data));
+            setUsbInt(txBuffer.progData.address, startAddr, 3);
+            printf("\n0x%05x ... 0x%05x: ", startAddr, startAddr + (int)sizeof(txBuffer.progData.data));
             fflush(stdout);
 			retry = 5;
 			while(retry) {
+				Sleep(10);
 				putchar('.');
 				/* Send data block to remote device */
-				if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.data))) != 0) {
+				if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.progData))) != 0) {
 					//fprintf(stderr, "USBError uploading data block: %s\n", usbErrorMessage(err));
 					//goto errorOccurred;
 					putchar('*');
 				}
-				//sleep_ms(10);
+				Sleep(20);
 				len = sizeof(replyBuffer); /* Get the reply from remote device */
 				if((err = usbGetReport(dev, USB_HID_REPORT_TYPE_FEATURE, 3, replyBuffer.bytes, &len)) != 0) {
-					//fprintf(stderr, "USBError getting status: %s\n", usbErrorMessage(err));
-					//goto errorOccurred;
-					putchar('*');
+					fprintf(stderr, "USBError getting status: %s\n", usbErrorMessage(err));
+					goto errorOccurred;
 				}
-				if(len < sizeof(replyBuffer.status)) {
-					fprintf(stderr, "Not enough bytes in device info report (%d instead of %d)\n", len, (int)sizeof(replyBuffer.status));
+				if(len < sizeof(replyBuffer.progStatus)) {
+					fprintf(stderr, "Not enough bytes in device info report (%d instead of %d)\n", len, (int)sizeof(replyBuffer.progStatus));
 					err = -1;
 					goto errorOccurred;
 				}
-				if ((replyBuffer.status.txStatus == 0) && (replyBuffer.status.payloadType == PAYLD_TYPE_STATUS)) {
-					currentAddr = getUsbInt((char *)&replyBuffer.status.currentAddress[0], 2);
-					if(currentAddr == startAddr + (int)sizeof(txBuffer.data.data)) {
-						printf("OK");
-						break;
-					}
+				if ((replyBuffer.progStatus.txStatus == 0) && (replyBuffer.progStatus.deviceId == deviceId)) {
+					printf("OK");
+					break;
 				}
-				//printf("\nTxStatus: %d.. Addr: %d\n", replyBuffer.info.txStatus, getUsbInt(replyBuffer.info.pageSize, 2));
-				sleep_ms(10);
 				retry--;
 			}
 			if(!retry) {
 				fprintf(stderr, "ERROR: programming failed at address 0x%05x\n", startAddr);
-				printf("txStatus: %d, Type: 0x%02x, Addr: 0x%x\n", replyBuffer.status.txStatus, replyBuffer.status.payloadType, getUsbInt((char *)&replyBuffer.status.currentAddress[0], 2));
+				printf("txStatus: %d, DevID: 0x%02x, DevStatus: 0x%02x", replyBuffer.progStatus.txStatus, replyBuffer.progStatus.deviceId, replyBuffer.progStatus.devStatus);
 				goto errorOccurred;
 			}
-			//printf("txStatus: %d, Type: 0x%02x, Addr: 0x%x\n", replyBuffer.info.txStatus, replyBuffer.info.payloadType, getUsbInt((char *)&replyBuffer.info.flashSizeInKB, 2));
-            startAddr += sizeof(txBuffer.data.data);
-			//sleep_ms(10);
+            startAddr += sizeof(txBuffer.progData.data);
         }
+
+        /* Send STOP to remote device */
 		printf("\n\nENDING communication ");
 		sleep_ms(10);
-		txBuffer.command.reportId = 3;
-		txBuffer.command.cmd = OTA_PROG_STOP;	/* Send STOP to remote device */
+		txBuffer.progCommand.reportId = 3;
+		txBuffer.progCommand.deviceId = deviceId;
+		txBuffer.progCommand.cmd = CMD_OTA_BOOT_STOP;
 		retry = 5;
 		while(retry) {
+			Sleep(10);
 			putchar('.');
-			if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.command))) != 0) {
+			if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.progCommand))) != 0) {
 				//fprintf(stderr, "USBError: Sending STOP command: %s\n", usbErrorMessage(err));
 				//goto errorOccurred;
 				putchar('*');
 			}
+			Sleep(20);
 			len = sizeof(replyBuffer);	/* Get the reply from remote device */
 			if((err = usbGetReport(dev, USB_HID_REPORT_TYPE_FEATURE, 3, replyBuffer.bytes, &len)) != 0) {
-				//fprintf(stderr, "USBError: Getting STOP response: %s\n", usbErrorMessage(err));
-				//goto errorOccurred;
-				putchar('*');
+				fprintf(stderr, "USBError: Getting PROG_STOP response: %s\n", usbErrorMessage(err));
+			    goto errorOccurred;
 			}
-			if ((replyBuffer.status.txStatus == 0) && (replyBuffer.status.payloadType == PAYLD_TYPE_STATUS)) {	/* Valid reply received from remote device */
-				if(replyBuffer.status.currentAddress[0] == OTA_PROG_FINISHED) {
-					printf("OK");
-					break;
-				}
-			}
-			retry--;
-			sleep_ms(10);
-		}
-		if(!retry) {
-			fprintf(stderr, "\nERROR: ending communication failed (Retry: %d)\n", retry);
-			goto errorOccurred;
-		}
-		/* Reset the remote device */
-		printf("\nRESETTING remote device ");
-		///sleep_ms(200);
-		txBuffer.command.reportId = 3;
-		txBuffer.command.cmd = OTA_PROG_BOOT;	/* Send BOOT to remote device */
-		retry = 5;
-		while(retry) {
-			putchar('.');
-			if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.command))) != 0) {
-				//fprintf(stderr, "USBError: Sending BOOT command: %s\n", usbErrorMessage(err));
-				//goto errorOccurred;
-				putchar('*');
-			}
-			len = sizeof(replyBuffer);	/* Get the reply from remote device */
-			if((err = usbGetReport(dev, USB_HID_REPORT_TYPE_FEATURE, 3, replyBuffer.bytes, &len)) != 0) {
-				fprintf(stderr, "USBError: Getting BOOT response: %s\n", usbErrorMessage(err));
-				goto errorOccurred;
-			}
-			if(replyBuffer.status.txStatus == 0) {	/* Valid reply received from remote device */
-				printf("OK");
+			if ((replyBuffer.progStatus.txStatus == 0) && (replyBuffer.progStatus.deviceId == deviceId)) {	/* Valid reply received from remote device */
 				break;
 			}
 			retry--;
-			sleep_ms(10);
 		}
-		printf("\n");
-    }
-	if(leaveBootLoader) {
-        /* and now leave boot loader: */
-        txBuffer.command.reportId = 1;
-        usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.command));
-        /* Ignore errors here. If the device reboots before we poll the response,
-         * this request fails.
-         */
+		if(!retry) {
+			fprintf(stderr, "\nERROR: Ending communication failed\n");
+			goto errorOccurred;
+		}
+		printf("OK\n");
+
+		/* Reset the remote device */
+		printf("RESETTING Remote device ");
+		Sleep(200);
+		txBuffer.progCommand.reportId = 3;
+		txBuffer.progCommand.deviceId = deviceId;
+		txBuffer.progCommand.cmd = CMD_OTA_BOOT_RESET;	/* Send REBOOT to remote device */
+		retry = 5;
+		while(retry) {
+			Sleep(10);
+			putchar('.');
+			if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.progCommand))) != 0) {
+				putchar('*');
+			}
+			Sleep(10);
+			len = sizeof(replyBuffer);	/* Get the reply from remote device */
+			if((err = usbGetReport(dev, USB_HID_REPORT_TYPE_FEATURE, 3, replyBuffer.bytes, &len)) != 0) {
+				fprintf(stderr, "USBError: Getting PROG_REBOOT response: %s\n", usbErrorMessage(err));
+				goto errorOccurred;
+			}
+			if(replyBuffer.progStatus.txStatus == 0) {	/* Valid reply received from remote device */
+				break;
+			}
+			retry--;
+
+		}
+		printf("OK\n");
     }
 	
 errorOccurred:
-    if(dev != NULL)
+	if(dev != NULL) {
+		printf("RESTORING state...");
+		Sleep(200);
+		txBuffer.progCommand.reportId = 3;
+		txBuffer.progCommand.cmd = CMD_OTA_BOOT_END;	/* Send END command */
+		if((err = usbSetReport(dev, USB_HID_REPORT_TYPE_FEATURE, txBuffer.bytes, sizeof(txBuffer.progCommand))) != 0) {
+			fprintf(stderr, "USBError: Sending END command: %s\n", usbErrorMessage(err));
+			return 1;
+		}
+		printf("OK\n");
         usbCloseDevice(dev);
+	}
     return err;
 }
 
@@ -515,33 +561,11 @@ int 	count = 1;
 	if(count < argc) {
 		file = *argv;
 	}
-#if 0
-	if(strcmp(argv[1], "remote") == 0) {
-		if(strcmp(argv[2], "-r") == 0){
-			leaveBootLoader = 1;
-			if(argc >= 4){
-				file = argv[3];
-			}
-		}else{
-			file = argv[2];
-		}
-		remoteBoot = true;
-	}
-	else {
-		if(strcmp(argv[1], "-r") == 0){
-			leaveBootLoader = 1;
-			if(argc >= 3){
-				file = argv[2];
-			}
-		}else{
-			file = argv[1];
-		}
-	}
-#endif
+
 
     startAddress = sizeof(dataBuffer);
     endAddress = 0;
-    if(file != NULL){   // an upload file was given, load the data
+    if(file != NULL) {   // an upload file was given, load the data
         memset(dataBuffer, -1, sizeof(dataBuffer));
         if(parseIntelHex(file, dataBuffer, &startAddress, &endAddress))
             return 1;

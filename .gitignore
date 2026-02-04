@@ -62,4 +62,6 @@ Thumbs.db
 
 # Project specific #
 ####################
-
+.project
+.cproject
+.settings
