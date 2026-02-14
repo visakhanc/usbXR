@@ -221,6 +221,8 @@ union {
 				if(data[2] == CMD_OTA_BOOT_START) {
 					ackPld[0] = data[1]; /* Device ID */
 					ackPld[1] = data[2]; /* Command to be sent */
+					rf24_flush_txfifo(); /* Flush pending ack payloads if any */
+					rf24_set_ack_payload(RF24_PIPE0, ackPld, sizeof(ackPld));
 					bootAckPld = true;
 				}
 				else if(data[2] == CMD_OTA_BOOT_END) {
