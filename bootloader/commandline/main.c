@@ -31,7 +31,7 @@
 #include <unistd.h> // for usleep
 #endif
 
-#include "../../firmware/bootloader/bootloader_defs.h"
+#include "../firmware/bootloader_defs.h"
 
 
 #define IDENT_VENDOR_NUM        	0x16c0

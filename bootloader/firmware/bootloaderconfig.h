@@ -104,8 +104,27 @@ these macros are defined, the boot loader usees them.
  */
 
 #ifndef __ASSEMBLER__   /* assembler cannot parse function definitions */
+#include <avr/io.h>
 #include <util/delay.h>
-#include "../board.h"
+
+/* Button and LED */
+#define LED						PD6
+#define LED_DDR					DDRD
+#define LED_PORT				PORTD
+
+#define BUTTON					PD5
+#define BUTTON_PORT				PORTD
+#define BUTTON_PIN				PIND
+
+/* Macros for Button and LED */
+#define LED_INIT()				(LED_DDR |= (1 << LED))
+#define LED_OFF()				(LED_PORT |= (1 << LED))
+#define LED_ON()				(LED_PORT &= ~(1 << LED))
+#define LED_TOGGLE()			(LED_PORT ^= (1 << LED))
+#define BUTTON_INIT()			(BUTTON_PORT |= (1 << BUTTON))
+#define BUTTON_PRESSED()		((BUTTON_PIN & (1 << BUTTON)) == 0)
+
+
 
 static inline void  bootLoaderInit(void)
 {

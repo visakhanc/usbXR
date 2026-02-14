@@ -24,7 +24,7 @@
 #include "rf24_config.h"
 #include "usbdrv.h"
 #include "bootloader_defs.h"
-#include "../board.h"
+
 
 
 
